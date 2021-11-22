@@ -16,14 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
 public class OrderService {
     private final ClientRepository clientRepository;
     private final FoodRepository foodRepository;
-    private final FoodOrdersRepository foodOrdersRepository;
     private final OrderRepository orderRepository;
 
     @Transactional
@@ -31,37 +29,19 @@ public class OrderService {
         // 사용자 검증
         Client client = validateClient(requestDto.getClientName(), requestDto.getClientPassword());
 
-        List<FoodCount> foodCountList = requestDto.getFoodCountList();
-        List<FoodOrders> foodOrdersList = new ArrayList<>();
-        for(FoodCount foodCount: foodCountList){
-            // 음식 정보 얻기
-            Food food = (Food) foodRepository.findById(foodCount.getFoodId()).get();
-
-            // 주문 음식 생성
-            foodOrdersList.add(foodOrdersRepository.save(FoodOrders.builder().food(food).count(foodCount.getCount()).build()));
-        }
+        // 주문 음식 정보 얻기
+        List<FoodOrders> foodOrdersList = makeFoodOrdersList(requestDto.getFoodCountList());
 
         // 주문 생성
         Orders orders = orderRepository.save(Orders.builder().client(client).foodOrdersList(foodOrdersList).build());
 
-        // 생성된 주문 데이터를 사용자의 주문 리스트에 반영
+        // 생성된 주문 데이터를 고객의 주문 리스트에 반영
         client.addOrder(orders);
         clientRepository.save(client);
 
-        // 생성된 주문 데이터를 주문 음식의 주문에 반영
-        for(FoodOrders foodOrders: foodOrdersList){
-            foodOrders.connectOrder(orders);
-            foodOrdersRepository.save(foodOrders);
-        }
-    }
-
-    @Transactional
-    private Client validateClient(String clientName, String clientPassword){
-        Client client = clientRepository.findByNameLike(clientName).get();
-        if(!client.getPassword().equals(clientPassword))
-            throw new IllegalArgumentException("unexpected client");
-
-        return client;
+        // 주문과 주문 정보 엔티티를 연결
+        connectOrderAndFoodOrders(foodOrdersList, orders);
+        orderRepository.save(orders);
     }
 
     @Transactional
@@ -75,12 +55,36 @@ public class OrderService {
     public void cancelOrder(Long orderId) {
         Orders orders = orderRepository.findById(orderId).get();
 
-        foodOrdersRepository.deleteAllByOrderId(orderId);
-
         Client client = orders.getClient();
         client.removeOrder(orders);
         clientRepository.save(client);
 
         orderRepository.delete(orders);
+    }
+
+    private void connectOrderAndFoodOrders(List<FoodOrders> foodOrdersList, Orders orders) {
+        for(FoodOrders foodOrders: foodOrdersList){
+            foodOrders.connectOrder(orders);
+        }
+        orders.setFoodOrdersList(foodOrdersList);
+    }
+
+    private List<FoodOrders> makeFoodOrdersList(List<FoodCount> foodCountList) {
+        List<FoodOrders> foodOrdersList = new ArrayList<>();
+        for(FoodCount foodCount: foodCountList){
+            foodOrdersList.add(FoodOrders.builder()
+                    .food((Food) foodRepository.findById(foodCount.getFoodId()).get())
+                    .count(foodCount.getCount()).build());
+        }
+        return foodOrdersList;
+    }
+
+    @Transactional
+    private Client validateClient(String clientName, String clientPassword){
+        Client client = clientRepository.findByNameLike(clientName).get();
+        if(!client.getPassword().equals(clientPassword))
+            throw new IllegalArgumentException("unexpected client");
+
+        return client;
     }
 }

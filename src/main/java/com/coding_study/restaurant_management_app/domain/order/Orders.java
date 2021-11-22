@@ -22,7 +22,7 @@ public class Orders {
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     private Client client;
-    @OneToMany(mappedBy = "orders")
+    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
     private List<FoodOrders> foodOrdersList = new ArrayList<>();
     @CreatedDate
     private LocalDateTime orderedAt;
@@ -38,5 +38,9 @@ public class Orders {
 
     public void successOrder() {
         status = OrderStatus.SUCCESS;
+    }
+
+    public void setFoodOrdersList(List<FoodOrders> foodOrdersList){
+        this.foodOrdersList = foodOrdersList;
     }
 }

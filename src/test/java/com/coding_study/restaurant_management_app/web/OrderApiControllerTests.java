@@ -51,10 +51,12 @@ public class OrderApiControllerTests {
     private String clientPassword = "12345";
     private List<FoodCount> foodCountList = new ArrayList();
 
+    private Meal meal;
     private String mealName = "pizza";
     private int mealPrice = 18000;
     private int mealGram = 100;
 
+    private Drink drink;
     private String drinkName = "cola";
     private int drinkPrice = 2000;
     private int drinkLister = 2;
@@ -65,14 +67,14 @@ public class OrderApiControllerTests {
     public void setup(){
         client = clientRepository.save(Client.builder().name(clientName).password(clientPassword).build());
         Category category = categoryRepository.save(new Category("양식"));
-        Meal meal = ((Meal) foodRepository.save(Meal.builder()
+        meal = ((Meal) foodRepository.save(Meal.builder()
                 .name(mealName)
                 .price(mealPrice)
                 .gram(mealGram)
                 .category(category)
                 .build()));
 
-        Drink drink = ((Drink) foodRepository.save(Drink.builder()
+        drink = ((Drink) foodRepository.save(Drink.builder()
                 .name(drinkName)
                 .price(drinkPrice)
                 .liter(drinkLister)
@@ -81,9 +83,6 @@ public class OrderApiControllerTests {
 
         foodCountList.add(new FoodCount(meal.getId(), 1));
         foodCountList.add(new FoodCount(drink.getId(), 2));
-
-        foodOrdersList.add(foodOrdersRepository.save(FoodOrders.builder().food(meal).count(1).build()));
-        foodOrdersList.add(foodOrdersRepository.save(FoodOrders.builder().food(drink).count(2).build()));
     }
 
     @AfterEach
@@ -124,6 +123,10 @@ public class OrderApiControllerTests {
         assertThat(all.get(0).getStatus()).isEqualTo(OrderStatus.PROCESS);
         assertThat(all.get(0).getOrderedAt()).isBefore(LocalDateTime.now());
 
+        List<FoodOrders> foodOrdersList = foodOrdersRepository.findAll();
+        assertThat(foodOrdersList.size()).isGreaterThan(1);
+        assertThat(foodOrdersList.get(0).getOrders()).isEqualTo(all.get(0));
+
         List<Client> clients = clientRepository.findAll();
         assertThat(clients.get(0).getOrders().size()).isEqualTo(1);
     }
@@ -131,6 +134,9 @@ public class OrderApiControllerTests {
     @Test
     public void successOrder() throws Exception {
         // given
+        foodOrdersList.add(FoodOrders.builder().food(meal).count(1).build());
+        foodOrdersList.add(FoodOrders.builder().food(drink).count(2).build());
+
         Orders orders = orderRepository.save(Orders.builder().client(client).foodOrdersList(foodOrdersList).build());
 
         String url = "/api/v1/orders/" + orders.getId();
@@ -147,12 +153,9 @@ public class OrderApiControllerTests {
     @Transactional
     public void cancelOrder() throws Exception {
         // given
+        foodOrdersList.add(FoodOrders.builder().food(meal).count(1).build());
+        foodOrdersList.add(FoodOrders.builder().food(drink).count(2).build());
         Orders orders = orderRepository.save(Orders.builder().client(client).foodOrdersList(foodOrdersList).build());
-
-        for(FoodOrders foodOrders: foodOrdersList){
-            foodOrders.connectOrder(orders);
-            foodOrdersRepository.save(foodOrders);
-        }
 
         client.addOrder(orders);
         clientRepository.save(client);
