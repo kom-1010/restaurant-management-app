@@ -38,8 +38,7 @@ public class FoodRepositoryTests {
     @Transactional
     public void saveTypeMeal(){
         /// given
-        categoryRepository.save(new Category("양식"));
-        Category category = categoryRepository.findAll().get(0);
+        Category category = categoryRepository.save(new Category("양식"));
         Meal food = Meal.builder().name(name).price(price).category(category).gram(100).build();
 
         // when

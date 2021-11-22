@@ -25,7 +25,7 @@ public class Category {
             name = "CATEGORY_FOOD",
             joinColumns = @JoinColumn(name = "CATEGORY_ID"),
             inverseJoinColumns = @JoinColumn(name = "FOOD_ID"))
-    private List<Food> foods = new ArrayList<Food>();
+    private List<Food> foods = new ArrayList<>();
 
     public Category(String name){
         this.name = name;
