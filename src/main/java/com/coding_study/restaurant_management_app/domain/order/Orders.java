@@ -23,7 +23,7 @@ public class Orders {
     @ManyToOne(fetch = FetchType.LAZY)
     private Client client;
     @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
-    private List<FoodOrders> foodOrdersList = new ArrayList<>();
+    private List<FoodOrders> foodOrdersList;
     @CreatedDate
     private LocalDateTime orderedAt;
     @Enumerated
@@ -32,7 +32,8 @@ public class Orders {
     @Builder
     public Orders(Client client, List<FoodOrders> foodOrdersList){
         this.client = client;
-        for(FoodOrders foodOrders: foodOrdersList) this.foodOrdersList.add(foodOrders);
+//        for(FoodOrders foodOrders: foodOrdersList) this.foodOrdersList.add(foodOrders);
+        this.foodOrdersList = foodOrdersList;
         status = OrderStatus.PROCESS;
     }
 

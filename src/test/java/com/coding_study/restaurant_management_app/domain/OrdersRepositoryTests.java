@@ -8,10 +8,7 @@ import com.coding_study.restaurant_management_app.domain.food.Drink;
 import com.coding_study.restaurant_management_app.domain.food.Food;
 import com.coding_study.restaurant_management_app.domain.food.FoodRepository;
 import com.coding_study.restaurant_management_app.domain.food.Meal;
-import com.coding_study.restaurant_management_app.domain.order.FoodOrders;
-import com.coding_study.restaurant_management_app.domain.order.OrderStatus;
-import com.coding_study.restaurant_management_app.domain.order.Orders;
-import com.coding_study.restaurant_management_app.domain.order.OrderRepository;
+import com.coding_study.restaurant_management_app.domain.order.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,6 +32,8 @@ public class OrdersRepositoryTests {
     private FoodRepository foodRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private FoodOrdersRepository foodOrdersRepository;
 
     private Client client;
     private List<FoodOrders> foodOrdersList = new ArrayList<>();
@@ -61,6 +60,7 @@ public class OrdersRepositoryTests {
 
     @AfterEach
     public void tearDown(){
+        foodOrdersRepository.deleteAll();
         orderRepository.deleteAll();
         clientRepository.deleteAll();
         foodRepository.deleteAll();

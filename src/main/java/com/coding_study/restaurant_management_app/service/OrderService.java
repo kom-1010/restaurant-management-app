@@ -10,6 +10,7 @@ import com.coding_study.restaurant_management_app.domain.order.OrderRepository;
 import com.coding_study.restaurant_management_app.domain.order.Orders;
 import com.coding_study.restaurant_management_app.web.dto.FoodCount;
 import com.coding_study.restaurant_management_app.web.dto.OrderRequestDto;
+import com.coding_study.restaurant_management_app.web.dto.OrderResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,5 +87,40 @@ public class OrderService {
             throw new IllegalArgumentException("unexpected client");
 
         return client;
+    }
+
+    @Transactional
+    public List<OrderResponseDto> read() {
+        List<Orders> ordersList = orderRepository.findAll();
+
+        List<OrderResponseDto> orderResponseDtoList = new ArrayList<>();
+        for(Orders orders: ordersList){
+            List<FoodCount> foodCountList = new ArrayList<>();
+            List<FoodOrders> foodOrdersList = orders.getFoodOrdersList();
+
+            int totalPrice = 0;
+            for(FoodOrders foodOrders: foodOrdersList){
+                FoodCount foodCount = FoodCount.builder()
+                        .foodId(foodOrders.getFood().getId())
+                        .foodName(foodOrders.getFood().getName())
+                        .count(foodOrders.getCount())
+                        .build();
+                foodCountList.add(foodCount);
+                totalPrice += foodOrders.getOrderPrice();
+            }
+
+            OrderResponseDto orderResponseDto = OrderResponseDto.builder()
+                    .id(orders.getId())
+                    .clientName(orders.getClient().getName())
+                    .foodCountList(foodCountList)
+                    .orderedAt(orders.getOrderedAt())
+                    .status(orders.getStatus())
+                    .totalPrice(totalPrice)
+                    .build();
+
+            orderResponseDtoList.add(orderResponseDto);
+        }
+
+        return orderResponseDtoList;
     }
 }

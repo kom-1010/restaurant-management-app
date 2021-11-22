@@ -3,9 +3,8 @@ package com.coding_study.restaurant_management_app.domain;
 import com.coding_study.restaurant_management_app.domain.category.Category;
 import com.coding_study.restaurant_management_app.domain.category.CategoryRepository;
 import com.coding_study.restaurant_management_app.domain.food.Drink;
-import com.coding_study.restaurant_management_app.domain.food.DrinkRepository;
+import com.coding_study.restaurant_management_app.domain.food.FoodRepository;
 import com.coding_study.restaurant_management_app.domain.food.Meal;
-import com.coding_study.restaurant_management_app.domain.food.MealRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,20 +19,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CategoryRepositoryTests {
     @Autowired
     private CategoryRepository categoryRepository;
-
     @Autowired
-    private MealRepository mealRepository;
-
-    @Autowired
-    private DrinkRepository drinkRepository;
+    private FoodRepository foodRepository;
 
     private String name = "western food";
 
     @AfterEach
     public void tearDown(){
         categoryRepository.deleteAll();
-        drinkRepository.deleteAll();
-        mealRepository.deleteAll();
+        foodRepository.deleteAll();
     }
 
     @Test
@@ -58,8 +52,8 @@ public class CategoryRepositoryTests {
 
         Meal food = Meal.builder().name("pizza").price(18000).category(category).gram(100).build();
 
-        mealRepository.save(food);
-        Meal savedFood = mealRepository.findAll().get(0);
+        foodRepository.save(food);
+        Meal savedFood = (Meal) foodRepository.findAll().get(0);
 
         // when
         category.addFood(savedFood);
@@ -78,8 +72,8 @@ public class CategoryRepositoryTests {
 
         Drink food = Drink.builder().name("pizza").price(18000).category(category).liter(2).build();
 
-        drinkRepository.save(food);
-        Drink savedFood = drinkRepository.findAll().get(0);
+        foodRepository.save(food);
+        Drink savedFood = (Drink) foodRepository.findAll().get(0);
 
         // when
         category.addFood(savedFood);

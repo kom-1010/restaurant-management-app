@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -49,7 +51,7 @@ public class OrderApiControllerTests {
     private Client client;
     private String clientName = "client";
     private String clientPassword = "12345";
-    private List<FoodCount> foodCountList = new ArrayList();
+    private List<FoodCount> foodCountList;
 
     private Meal meal;
     private String mealName = "pizza";
@@ -61,10 +63,13 @@ public class OrderApiControllerTests {
     private int drinkPrice = 2000;
     private int drinkLister = 2;
 
-    private List<FoodOrders> foodOrdersList = new ArrayList<>();
+    private List<FoodOrders> foodOrdersList;
 
     @BeforeEach
     public void setup(){
+        foodCountList = new ArrayList<>();
+        foodOrdersList = new ArrayList<>();
+
         client = clientRepository.save(Client.builder().name(clientName).password(clientPassword).build());
         Category category = categoryRepository.save(new Category("양식"));
         meal = ((Meal) foodRepository.save(Meal.builder()
@@ -81,8 +86,8 @@ public class OrderApiControllerTests {
                 .category(category)
                 .build()));
 
-        foodCountList.add(new FoodCount(meal.getId(), 1));
-        foodCountList.add(new FoodCount(drink.getId(), 2));
+        foodCountList.add(FoodCount.builder().foodId(meal.getId()).count(1).build());
+        foodCountList.add(FoodCount.builder().foodId(drink.getId()).count(2).build());
     }
 
     @AfterEach
@@ -129,6 +134,28 @@ public class OrderApiControllerTests {
 
         List<Client> clients = clientRepository.findAll();
         assertThat(clients.get(0).getOrders().size()).isEqualTo(1);
+    }
+
+    @Test
+    @Transactional
+    public void read() throws Exception {
+        // given
+        foodOrdersList.add(FoodOrders.builder().food(meal).count(1).build());
+        foodOrdersList.add(FoodOrders.builder().food(drink).count(2).build());
+        Orders orders = Orders.builder().client(client).foodOrdersList(foodOrdersList).build();
+        orderRepository.save(orders);
+
+        String url = "/api/v1/orders";
+
+        // when
+        ResultActions actions = mvc.perform(MockMvcRequestBuilders.get(url)).andExpect(status().isOk());
+
+        // then
+        actions
+                .andExpect(jsonPath("$[0].clientName").value(clientName))
+                .andExpect(jsonPath("$[0].status").value(OrderStatus.PROCESS.name()))
+                .andExpect(jsonPath("$[0].foodCountList[0].foodName").value(mealName))
+                .andExpect(jsonPath("$[0].totalPrice").value(22000));
     }
 
     @Test

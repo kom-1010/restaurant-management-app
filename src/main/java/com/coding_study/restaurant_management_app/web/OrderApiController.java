@@ -2,8 +2,11 @@ package com.coding_study.restaurant_management_app.web;
 
 import com.coding_study.restaurant_management_app.service.OrderService;
 import com.coding_study.restaurant_management_app.web.dto.OrderRequestDto;
+import com.coding_study.restaurant_management_app.web.dto.OrderResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -14,6 +17,11 @@ public class OrderApiController {
     @PostMapping("/orders")
     public void createOrder(@RequestBody OrderRequestDto requestDto){
         orderService.createOrder(requestDto);
+    }
+
+    @GetMapping("/orders")
+    public List<OrderResponseDto> read(){
+        return orderService.read();
     }
 
     @PutMapping("/orders/{orderId}")

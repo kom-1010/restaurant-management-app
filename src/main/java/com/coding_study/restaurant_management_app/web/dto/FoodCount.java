@@ -1,5 +1,6 @@
 package com.coding_study.restaurant_management_app.web.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -7,9 +8,12 @@ import lombok.RequiredArgsConstructor;
 public class FoodCount {
     private Long foodId;
     private int count;
+    private String foodName;
 
-    public FoodCount(Long foodId, int count){
+    @Builder
+    public FoodCount(Long foodId, int count, String foodName){
         this.foodId = foodId;
         this.count = count;
+        this.foodName = foodName;
     }
 }
