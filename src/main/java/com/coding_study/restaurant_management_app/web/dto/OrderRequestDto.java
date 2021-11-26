@@ -9,13 +9,13 @@ import java.util.List;
 @Getter
 public class OrderRequestDto {
     private String clientName;
-    private String clientPassword;
-    private List<FoodCount> foodCountList = new ArrayList<>();
+    private String password;
+    private List<FoodCount> foodCounts = new ArrayList<>();
 
     @Builder
-    public OrderRequestDto(String clientName, String clientPassword, List<FoodCount> foodCountList){
+    public OrderRequestDto(String clientName, String password, List<FoodCount> foodCounts){
         this.clientName = clientName;
-        this.clientPassword = clientPassword;
-        for(FoodCount foodCount: foodCountList) this.foodCountList.add(foodCount);
+        this.password = password;
+        for(FoodCount foodCount: foodCounts) this.foodCounts.add(foodCount);
     }
 }

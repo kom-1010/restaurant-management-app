@@ -39,8 +39,8 @@ public class CategoryRepositoryTests {
         categoryRepository.save(category);
 
         // then
-        List<Category> all = categoryRepository.findAll();
-        assertThat(all.get(0).getName()).isEqualTo(name);
+        Category testCategory = categoryRepository.findAll().get(0);
+        assertThat(testCategory.getName()).isEqualTo(name);
     }
 
     @Test
@@ -51,8 +51,8 @@ public class CategoryRepositoryTests {
         Category category = categoryRepository.findAll().get(0);
 
         Meal food = Meal.builder().name("pizza").price(18000).category(category).gram(100).build();
-
         foodRepository.save(food);
+
         Meal savedFood = (Meal) foodRepository.findAll().get(0);
 
         // when

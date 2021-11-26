@@ -1,6 +1,6 @@
 package com.coding_study.restaurant_management_app.domain.client;
 
-import com.coding_study.restaurant_management_app.domain.order.Orders;
+import com.coding_study.restaurant_management_app.domain.order.Order;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +22,7 @@ public class Client {
     @Column(nullable = false)
     private String password;
     @OneToMany(mappedBy = "client")
-    private List<Orders> orders = new ArrayList<>();
+    private List<Order> orders = new ArrayList<>();
 
     @Builder
     public Client(String name, String password){
@@ -30,11 +30,11 @@ public class Client {
         this.password = password;
     }
 
-    public void addOrder(Orders orders){
+    public void addOrder(Order orders){
         this.orders.add(orders);
     }
 
-    public void removeOrder(Orders orders){
+    public void removeOrder(Order orders){
         this.orders.remove(orders);
     }
 }

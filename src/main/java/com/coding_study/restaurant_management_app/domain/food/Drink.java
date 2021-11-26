@@ -22,8 +22,8 @@ public class Drink extends Food{
     }
 
     @Override
-    public void update(String name, int price, int gram, int liter) {
+    public void update(String name, int price, int size) {
         update(name, price);
-        this.liter = liter;
+        this.liter = size;
     }
 }

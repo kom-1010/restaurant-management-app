@@ -16,15 +16,14 @@ public class FoodResponseDto {
     private Long id;
     private String name;
     private int price;
-    private int gram;
-    private int liter;
+    private int size;
     private List<Category> categories;
 
     public void setMeal(Meal entity){
         this.id = entity.getId();
         this.name = entity.getName();
         this.price = entity.getPrice();
-        this.gram = entity.getGram();
+        this.size = entity.getGram();
         this.categories = entity.getCategories();
     }
 
@@ -32,7 +31,7 @@ public class FoodResponseDto {
         this.id = entity.getId();
         this.name = entity.getName();
         this.price = entity.getPrice();
-        this.liter = entity.getLiter();
+        this.size = entity.getLiter();
         this.categories = entity.getCategories();
     }
 }

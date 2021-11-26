@@ -1,19 +1,17 @@
 package com.coding_study.restaurant_management_app.web.dto;
 
-import com.coding_study.restaurant_management_app.domain.client.Client;
 import com.coding_study.restaurant_management_app.domain.order.OrderStatus;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 public class OrderResponseDto {
     private Long id;
     private String clientName;
-    private List<FoodCount> foodCountList = new ArrayList<>();
+    private List<FoodCount> foodCountList;
     private LocalDateTime orderedAt;
     private OrderStatus status;
     private int totalPrice;

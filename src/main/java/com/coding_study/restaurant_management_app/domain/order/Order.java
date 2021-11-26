@@ -9,31 +9,30 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @NoArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class Orders {
+@Table(name = "ORDERS")
+public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     private Client client;
-    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
-    private List<FoodOrders> foodOrdersList;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private List<FoodOrder> foodOrders;
     @CreatedDate
     private LocalDateTime orderedAt;
     @Enumerated
     private OrderStatus status;
 
     @Builder
-    public Orders(Client client, List<FoodOrders> foodOrdersList){
+    public Order(Client client, List<FoodOrder> foodOrders){
         this.client = client;
-//        for(FoodOrders foodOrders: foodOrdersList) this.foodOrdersList.add(foodOrders);
-        this.foodOrdersList = foodOrdersList;
+        this.foodOrders = foodOrders;
         status = OrderStatus.PROCESS;
     }
 
@@ -41,7 +40,7 @@ public class Orders {
         status = OrderStatus.SUCCESS;
     }
 
-    public void setFoodOrdersList(List<FoodOrders> foodOrdersList){
-        this.foodOrdersList = foodOrdersList;
+    public void setFoodOrders(List<FoodOrder> foodOrders){
+        this.foodOrders = foodOrders;
     }
 }

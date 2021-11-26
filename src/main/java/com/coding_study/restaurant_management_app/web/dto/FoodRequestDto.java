@@ -11,25 +11,23 @@ public class FoodRequestDto {
     private String name;
     private String type;
     private int price;
-    private int gram;
-    private int liter;
+    private int size;
     private Category category;
 
     @Builder
-    public FoodRequestDto(String name, String type, int price, int gram, int liter, Category category){
+    public FoodRequestDto(String name, String type, int price, int size, Category category){
         this.name = name;
         this.type = type;
         this.price = price;
-        this.gram = gram;
-        this.liter = liter;
+        this.size = size;
         this.category = category;
     }
 
     public Meal toMeal(){
-        return Meal.builder().name(name).price(price).category(category).gram(gram).build();
+        return Meal.builder().name(name).price(price).category(category).gram(size).build();
     }
 
     public Drink toDrink(){
-        return Drink.builder().name(name).price(price).category(category).liter(liter).build();
+        return Drink.builder().name(name).price(price).category(category).liter(size).build();
     }
 }

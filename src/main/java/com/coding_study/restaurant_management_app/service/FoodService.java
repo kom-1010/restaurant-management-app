@@ -23,43 +23,36 @@ public class FoodService {
         Category category = categoryRepository.findById(requestDto.getCategory().getId()).orElseThrow(() ->
                 new IllegalArgumentException("unexpected category"));
 
-        if(requestDto.getType().equals("M")){
-            Meal meal = requestDto.toMeal();
-            foodRepository.save(meal);
-            category.addFood(meal);
-        }
-        else if(requestDto.getType().equals("D")) {
-            Drink drink = requestDto.toDrink();
-            foodRepository.save(drink);
-            category.addFood(drink);
-        }
-        else{
+        Food food;
+        if(requestDto.getType().equals("M"))
+            food = (Food) foodRepository.save(requestDto.toMeal());
+        else if(requestDto.getType().equals("D"))
+            food = (Food) foodRepository.save(requestDto.toDrink());
+         else
             throw new IllegalArgumentException("unexpected food type");
-        }
+
+        category.addFood(food);
         categoryRepository.save(category);
-
-
     }
 
     @Transactional
     public List<FoodResponseDto> read() {
         List<Food> foods = foodRepository.findAll();
-        List<FoodResponseDto> responseDtoList = new ArrayList<>();
+        List<FoodResponseDto> responseDtos = new ArrayList<>();
 
         for(int i=0;i<foods.size();i++){
-            FoodResponseDto foodResponseDto = new FoodResponseDto();
+            FoodResponseDto responseDto = new FoodResponseDto();
             Food food = foods.get(i);
 
-            if(food.getClass().equals(Drink.class)){
-                foodResponseDto.setDrink((Drink) food);
-            }
-            else if(food.getClass().equals(Meal.class)){
-                foodResponseDto.setMeal((Meal) food);
-            }
-            responseDtoList.add(foodResponseDto);
+            if(food.getClass().equals(Drink.class))
+                responseDto.setDrink((Drink) food);
+            else    // food.getClass().equals(Meal.class)
+                responseDto.setMeal((Meal) food);
+
+            responseDtos.add(responseDto);
         }
 
-        return responseDtoList;
+        return responseDtos;
     }
 
     @Transactional
@@ -67,13 +60,13 @@ public class FoodService {
         if(requestDto.getType().equals("M")) {
             Meal food = (Meal) foodRepository.findById(foodId).orElseThrow(() ->
                     new IllegalArgumentException("unexpected foodId"));
-            food.update(requestDto.getName(), requestDto.getPrice(), requestDto.getGram(), requestDto.getLiter());
+            food.update(requestDto.getName(), requestDto.getPrice(), requestDto.getSize());
             foodRepository.save(food);
         }
         else if(requestDto.getType().equals("D")){
             Drink food = (Drink) foodRepository.findById(foodId).orElseThrow(() ->
                     new IllegalArgumentException("unexpected foodId"));
-            food.update(requestDto.getName(), requestDto.getPrice(), requestDto.getGram(), requestDto.getLiter());
+            food.update(requestDto.getName(), requestDto.getPrice(), requestDto.getSize());
             foodRepository.save(food);
         }
         else{

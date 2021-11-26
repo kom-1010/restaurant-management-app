@@ -5,13 +5,11 @@ import com.coding_study.restaurant_management_app.domain.category.CategoryReposi
 import com.coding_study.restaurant_management_app.domain.client.Client;
 import com.coding_study.restaurant_management_app.domain.client.ClientRepository;
 import com.coding_study.restaurant_management_app.domain.food.Drink;
-import com.coding_study.restaurant_management_app.domain.food.Food;
 import com.coding_study.restaurant_management_app.domain.food.FoodRepository;
 import com.coding_study.restaurant_management_app.domain.food.Meal;
 import com.coding_study.restaurant_management_app.domain.order.*;
 import com.coding_study.restaurant_management_app.web.dto.FoodCount;
 import com.coding_study.restaurant_management_app.web.dto.OrderRequestDto;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,12 +44,12 @@ public class OrderApiControllerTests {
     @Autowired
     private ClientRepository clientRepository;
     @Autowired
-    private FoodOrdersRepository foodOrdersRepository;
+    private FoodOrderRepository foodOrderRepository;
 
     private Client client;
     private String clientName = "client";
-    private String clientPassword = "12345";
-    private List<FoodCount> foodCountList;
+    private String password = "12345";
+    private List<FoodCount> foodCounts;
 
     private Meal meal;
     private String mealName = "pizza";
@@ -63,14 +61,14 @@ public class OrderApiControllerTests {
     private int drinkPrice = 2000;
     private int drinkLister = 2;
 
-    private List<FoodOrders> foodOrdersList;
+    private List<FoodOrder> foodOrders;
 
     @BeforeEach
     public void setup(){
-        foodCountList = new ArrayList<>();
-        foodOrdersList = new ArrayList<>();
+        foodCounts = new ArrayList<>();
+        foodOrders = new ArrayList<>();
 
-        client = clientRepository.save(Client.builder().name(clientName).password(clientPassword).build());
+        client = clientRepository.save(Client.builder().name(clientName).password(password).build());
         Category category = categoryRepository.save(new Category("양식"));
         meal = ((Meal) foodRepository.save(Meal.builder()
                 .name(mealName)
@@ -86,20 +84,20 @@ public class OrderApiControllerTests {
                 .category(category)
                 .build()));
 
-        foodCountList.add(FoodCount.builder().foodId(meal.getId()).count(1).build());
-        foodCountList.add(FoodCount.builder().foodId(drink.getId()).count(2).build());
+        foodCounts.add(FoodCount.builder().foodId(meal.getId()).count(1).build());
+        foodCounts.add(FoodCount.builder().foodId(drink.getId()).count(2).build());
     }
 
     @AfterEach
     public void tearDown(){
-        foodOrdersRepository.deleteAll();
+        foodOrderRepository.deleteAll();
         orderRepository.deleteAll();
         foodRepository.deleteAll();
         categoryRepository.deleteAll();
         clientRepository.deleteAll();
 
-        foodCountList.clear();
-        foodOrdersList.clear();
+        foodCounts.clear();
+        foodOrders.clear();
     }
 
     @Test
@@ -109,8 +107,8 @@ public class OrderApiControllerTests {
         OrderRequestDto requestDto = OrderRequestDto
                 .builder()
                 .clientName(clientName)
-                .clientPassword(clientPassword)
-                .foodCountList(foodCountList)
+                .password(password)
+                .foodCounts(foodCounts)
                 .build();
 
         String url = "/api/v1/orders";
@@ -122,28 +120,28 @@ public class OrderApiControllerTests {
                 .andExpect(status().isOk());
 
         // then
-        List<Orders> all = orderRepository.findAll();
-        assertThat(all.get(0).getClient().getName()).isEqualTo(clientName);
-        assertThat(all.get(0).getFoodOrdersList().get(0).getFood().getName()).isEqualTo(mealName);
-        assertThat(all.get(0).getStatus()).isEqualTo(OrderStatus.PROCESS);
-        assertThat(all.get(0).getOrderedAt()).isBefore(LocalDateTime.now());
+        Order testOrder = orderRepository.findAll().get(0);
+        assertThat(testOrder.getClient().getName()).isEqualTo(clientName);
+        assertThat(testOrder.getFoodOrders().get(0).getFood().getName()).isEqualTo(mealName);
+        assertThat(testOrder.getStatus()).isEqualTo(OrderStatus.PROCESS);
+        assertThat(testOrder.getOrderedAt()).isBefore(LocalDateTime.now());
 
-        List<FoodOrders> foodOrdersList = foodOrdersRepository.findAll();
-        assertThat(foodOrdersList.size()).isGreaterThan(1);
-        assertThat(foodOrdersList.get(0).getOrders()).isEqualTo(all.get(0));
+        List<FoodOrder> testFoodOrders = foodOrderRepository.findAll();
+        assertThat(testFoodOrders.size()).isGreaterThan(1);
+        assertThat(testFoodOrders.get(0).getOrder()).isEqualTo(testOrder);
 
-        List<Client> clients = clientRepository.findAll();
-        assertThat(clients.get(0).getOrders().size()).isEqualTo(1);
+        Client testClient = clientRepository.findAll().get(0);
+        assertThat(testClient.getOrders().size()).isEqualTo(1);
     }
 
     @Test
     @Transactional
     public void read() throws Exception {
         // given
-        foodOrdersList.add(FoodOrders.builder().food(meal).count(1).build());
-        foodOrdersList.add(FoodOrders.builder().food(drink).count(2).build());
-        Orders orders = Orders.builder().client(client).foodOrdersList(foodOrdersList).build();
-        orderRepository.save(orders);
+        foodOrders.add(FoodOrder.builder().food(meal).count(1).build());
+        foodOrders.add(FoodOrder.builder().food(drink).count(2).build());
+        Order order = Order.builder().client(client).foodOrders(foodOrders).build();
+        orderRepository.save(order);
 
         String url = "/api/v1/orders";
 
@@ -161,44 +159,43 @@ public class OrderApiControllerTests {
     @Test
     public void successOrder() throws Exception {
         // given
-        foodOrdersList.add(FoodOrders.builder().food(meal).count(1).build());
-        foodOrdersList.add(FoodOrders.builder().food(drink).count(2).build());
+        foodOrders.add(FoodOrder.builder().food(meal).count(1).build());
+        foodOrders.add(FoodOrder.builder().food(drink).count(2).build());
 
-        Orders orders = orderRepository.save(Orders.builder().client(client).foodOrdersList(foodOrdersList).build());
+        Order order = orderRepository.save(Order.builder().client(client).foodOrders(foodOrders).build());
 
-        String url = "/api/v1/orders/" + orders.getId();
+        String url = "/api/v1/orders/" + order.getId();
 
         // when
         mvc.perform(MockMvcRequestBuilders.put(url)).andExpect(status().isOk());
 
         // then
-        List<Orders> all = orderRepository.findAll();
-        assertThat(all.get(0).getStatus()).isEqualTo(OrderStatus.SUCCESS);
+        Order testOrder = orderRepository.findAll().get(0);
+        assertThat(testOrder.getStatus()).isEqualTo(OrderStatus.SUCCESS);
     }
 
     @Test
     @Transactional
     public void cancelOrder() throws Exception {
         // given
-        foodOrdersList.add(FoodOrders.builder().food(meal).count(1).build());
-        foodOrdersList.add(FoodOrders.builder().food(drink).count(2).build());
-        Orders orders = orderRepository.save(Orders.builder().client(client).foodOrdersList(foodOrdersList).build());
+        foodOrders.add(FoodOrder.builder().food(meal).count(1).build());
+        foodOrders.add(FoodOrder.builder().food(drink).count(2).build());
+        Order order = orderRepository.save(Order.builder().client(client).foodOrders(foodOrders).build());
 
-        client.addOrder(orders);
+        client.addOrder(order);
         clientRepository.save(client);
 
-        String url = "/api/v1/orders/" + orders.getId();
+        String url = "/api/v1/orders/" + order.getId();
 
         // when
         mvc.perform(MockMvcRequestBuilders.delete(url)).andExpect(status().isOk());
 
         // then
-        List<Orders> ordersList = orderRepository.findAll();
-        List<FoodOrders> foodOrdersList = foodOrdersRepository.findAll();
-        List<Client> clientList = clientRepository.findAll();
-        assertThat(ordersList.size()).isEqualTo(0);
-        assertThat(foodOrdersList.size()).isEqualTo(0);
-        assertThat(clientList.get(0).getOrders().size()).isEqualTo(0);
-
+        List<Order> testOrders = orderRepository.findAll();
+        List<FoodOrder> testFoodOrders = foodOrderRepository.findAll();
+        Client testClient = clientRepository.findAll().get(0);
+        assertThat(testOrders.size()).isEqualTo(0);
+        assertThat(testFoodOrders.size()).isEqualTo(0);
+        assertThat(testClient.getOrders().size()).isEqualTo(0);
     }
 }

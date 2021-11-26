@@ -50,8 +50,8 @@ public class ClientApiControllerTests {
                 .andExpect(status().isOk());
 
         // then
-        List<Client> all = clientRepository.findAll();
-        assertThat(all.get(0).getName()).isEqualTo(name);
-        assertThat(all.get(0).getPassword()).isEqualTo(password);
+        Client testClient = clientRepository.findAll().get(0);
+        assertThat(testClient.getName()).isEqualTo(name);
+        assertThat(testClient.getPassword()).isEqualTo(password);
     }
 }

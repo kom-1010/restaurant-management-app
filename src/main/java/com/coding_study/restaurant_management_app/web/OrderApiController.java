@@ -15,8 +15,8 @@ public class OrderApiController {
     private final OrderService orderService;
 
     @PostMapping("/orders")
-    public void createOrder(@RequestBody OrderRequestDto requestDto){
-        orderService.createOrder(requestDto);
+    public void create(@RequestBody OrderRequestDto requestDto){
+        orderService.create(requestDto);
     }
 
     @GetMapping("/orders")
@@ -25,12 +25,12 @@ public class OrderApiController {
     }
 
     @PutMapping("/orders/{orderId}")
-    public void successOrder(@PathVariable Long orderId) {
-        orderService.successOrder(orderId);
+    public void success(@PathVariable Long orderId) {
+        orderService.success(orderId);
     }
 
     @DeleteMapping("/orders/{orderId}")
-    public void cancelOrder(@PathVariable Long orderId){
-        orderService.cancelOrder(orderId);
+    public void cancel(@PathVariable Long orderId){
+        orderService.cancel(orderId);
     }
 }

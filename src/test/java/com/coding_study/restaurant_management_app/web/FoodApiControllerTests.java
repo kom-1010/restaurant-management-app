@@ -4,7 +4,6 @@ import com.coding_study.restaurant_management_app.domain.category.Category;
 import com.coding_study.restaurant_management_app.domain.category.CategoryRepository;
 import com.coding_study.restaurant_management_app.domain.food.*;
 import com.coding_study.restaurant_management_app.web.dto.FoodRequestDto;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,8 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -56,7 +53,7 @@ public class FoodApiControllerTests {
     @Transactional
     public void create() throws Exception {
         // given
-        FoodRequestDto requestDto = FoodRequestDto.builder().name(mealName).type("M").price(mealPrice).category(category).gram(gram).build();
+        FoodRequestDto requestDto = FoodRequestDto.builder().name(mealName).type("M").price(mealPrice).category(category).size(gram).build();
         String url = "/api/v1/foods";
 
         // when
@@ -66,11 +63,11 @@ public class FoodApiControllerTests {
                 .andExpect(status().isOk());
 
         // then
-        List<Meal> all = foodRepository.findAll();
-        assertThat(all.get(0).getName()).isEqualTo(mealName);
-        assertThat(all.get(0).getPrice()).isEqualTo(mealPrice);
-        assertThat(all.get(0).getCategories().get(0).getName()).isEqualTo(category.getName());
-        assertThat(all.get(0).getGram()).isEqualTo(gram);
+        Meal food = (Meal) foodRepository.findAll().get(0);
+        assertThat(food.getName()).isEqualTo(mealName);
+        assertThat(food.getPrice()).isEqualTo(mealPrice);
+        assertThat(food.getCategories().get(0).getName()).isEqualTo(category.getName());
+        assertThat(food.getGram()).isEqualTo(gram);
     }
 
     @Test
@@ -86,7 +83,7 @@ public class FoodApiControllerTests {
         actions
                 .andExpect(jsonPath("$[0].name").value(mealName))
                 .andExpect(jsonPath("$[0].price").value(mealPrice))
-                .andExpect(jsonPath("$[0].gram").value(gram));
+                .andExpect(jsonPath("$[0].size").value(gram));
     }
 
     @Test
@@ -102,7 +99,7 @@ public class FoodApiControllerTests {
         actions
                 .andExpect(jsonPath("$[0].name").value(drinkName))
                 .andExpect(jsonPath("$[0].price").value(drinkPrice))
-                .andExpect(jsonPath("$[0].liter").value(liter));
+                .andExpect(jsonPath("$[0].size").value(liter));
     }
 
     @Test
@@ -119,25 +116,31 @@ public class FoodApiControllerTests {
         actions
                 .andExpect(jsonPath("$[0].name").value(drinkName))
                 .andExpect(jsonPath("$[0].price").value(drinkPrice))
-                .andExpect(jsonPath("$[0].liter").value(liter))
+                .andExpect(jsonPath("$[0].size").value(liter))
                 .andExpect(jsonPath("$[1].name").value(mealName))
                 .andExpect(jsonPath("$[1].price").value(mealPrice))
-                .andExpect(jsonPath("$[1].gram").value(gram));
+                .andExpect(jsonPath("$[1].size").value(gram));
     }
 
     @Test
     public void update() throws Exception {
         // given
-        Long id = ((Meal) foodRepository.save(Meal.builder().name(mealName).price(mealPrice).gram(gram).category(category).build())).getId();
         String modifiedName = "chicken";
         int modifiedPrice = 15000;
         int modifiedGram = 200;
+
+        Long id = ((Meal) foodRepository.save(Meal.builder()
+                .name(mealName)
+                .price(mealPrice)
+                .gram(gram)
+                .category(category)
+                .build())).getId();
 
         FoodRequestDto requestDto = FoodRequestDto.builder()
                 .name(modifiedName)
                 .price(modifiedPrice)
                 .category(category)
-                .gram(modifiedGram)
+                .size(modifiedGram)
                 .type("M")
                 .build();
 
@@ -150,16 +153,21 @@ public class FoodApiControllerTests {
                 .andExpect(status().isOk());
 
         // then
-        List<Meal> all = foodRepository.findAll();
-        assertThat(all.get(0).getName()).isEqualTo(modifiedName);
-        assertThat(all.get(0).getPrice()).isEqualTo(modifiedPrice);
-        assertThat(all.get(0).getGram()).isEqualTo(modifiedGram);
+        Meal food = (Meal) foodRepository.findAll().get(0);
+        assertThat(food.getName()).isEqualTo(modifiedName);
+        assertThat(food.getPrice()).isEqualTo(modifiedPrice);
+        assertThat(food.getGram()).isEqualTo(modifiedGram);
     }
 
     @Test
     public void delete() throws Exception {
         // given
-        Long id = ((Meal) foodRepository.save(Meal.builder().name(mealName).price(mealPrice).gram(gram).category(category).build())).getId();
+        Long id = ((Meal) foodRepository.save(Meal.builder()
+                .name(mealName)
+                .price(mealPrice)
+                .gram(gram)
+                .category(category)
+                .build())).getId();
         String url = "/api/v1/foods/" + id;
 
         // when, then

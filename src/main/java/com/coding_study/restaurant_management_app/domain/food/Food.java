@@ -18,15 +18,12 @@ public abstract class Food {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(nullable = false)
     private String name;
-
     @Column(nullable = false)
     private int price;
-
     @ManyToMany(mappedBy = "foods")
-    private List<Category> categories = new ArrayList<Category>();
+    private List<Category> categories = new ArrayList<>();
 
     public Food(String name, int price, Category category){
         this.name = name;
@@ -39,5 +36,5 @@ public abstract class Food {
         this.price = price;
     }
 
-    abstract public void update(String name, int price, int gram, int liter);
+    abstract public void update(String name, int price, int size);
 }

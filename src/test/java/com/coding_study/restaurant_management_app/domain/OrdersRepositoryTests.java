@@ -5,7 +5,6 @@ import com.coding_study.restaurant_management_app.domain.category.CategoryReposi
 import com.coding_study.restaurant_management_app.domain.client.Client;
 import com.coding_study.restaurant_management_app.domain.client.ClientRepository;
 import com.coding_study.restaurant_management_app.domain.food.Drink;
-import com.coding_study.restaurant_management_app.domain.food.Food;
 import com.coding_study.restaurant_management_app.domain.food.FoodRepository;
 import com.coding_study.restaurant_management_app.domain.food.Meal;
 import com.coding_study.restaurant_management_app.domain.order.*;
@@ -33,10 +32,10 @@ public class OrdersRepositoryTests {
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
-    private FoodOrdersRepository foodOrdersRepository;
+    private FoodOrderRepository foodOrderRepository;
 
     private Client client;
-    private List<FoodOrders> foodOrdersList = new ArrayList<>();
+    private List<FoodOrder> foodOrders = new ArrayList<>();
 
     @BeforeEach
     public void setup(){
@@ -54,13 +53,13 @@ public class OrdersRepositoryTests {
                 .category(categoryRepository.save(new Category("양식")))
                 .build());
 
-        foodOrdersList.add(FoodOrders.builder().food(meal).count(1).build());
-        foodOrdersList.add(FoodOrders.builder().food(drink).count(2).build());
+        foodOrders.add(FoodOrder.builder().food(meal).count(1).build());
+        foodOrders.add(FoodOrder.builder().food(drink).count(2).build());
     }
 
     @AfterEach
     public void tearDown(){
-        foodOrdersRepository.deleteAll();
+        foodOrderRepository.deleteAll();
         orderRepository.deleteAll();
         clientRepository.deleteAll();
         foodRepository.deleteAll();
@@ -71,44 +70,43 @@ public class OrdersRepositoryTests {
     @Transactional
     public void save(){
         // given
-        Orders order = new Orders(client, foodOrdersList);
+        Order order = new Order(client, foodOrders);
 
         // when
         orderRepository.save(order);
 
         // then
-        List<Orders> all = orderRepository.findAll();
-        assertThat(all.get(0).getClient().getName()).isEqualTo(client.getName());
-        assertThat(all.get(0).getStatus()).isEqualTo(OrderStatus.PROCESS);
-        assertThat(all.get(0).getOrderedAt()).isBefore(LocalDateTime.now());
-        assertThat(all.get(0).getFoodOrdersList().get(0).getOrderPrice()).isEqualTo(18000);
-        assertThat(all.get(0).getFoodOrdersList().get(1).getOrderPrice()).isEqualTo(4000);
+        Order testOrder = orderRepository.findAll().get(0);
+        assertThat(testOrder.getClient().getName()).isEqualTo(client.getName());
+        assertThat(testOrder.getStatus()).isEqualTo(OrderStatus.PROCESS);
+        assertThat(testOrder.getOrderedAt()).isBefore(LocalDateTime.now());
+        assertThat(testOrder.getFoodOrders().get(0).getOrderPrice()).isEqualTo(18000);
+        assertThat(testOrder.getFoodOrders().get(1).getOrderPrice()).isEqualTo(4000);
     }
 
     @Test
     public void update(){
         // given
-        Orders orders = new Orders(client, foodOrdersList);
-        orderRepository.save(orders);
-
-        orders.successOrder();
+        Order order = new Order(client, foodOrders);
+        orderRepository.save(order);
+        order.successOrder();
 
         // when
-        orderRepository.save(orders);
+        orderRepository.save(order);
 
         // then
-        List<Orders> all = orderRepository.findAll();
-        assertThat(all.get(0).getStatus()).isEqualTo(OrderStatus.SUCCESS);
+        Order testOrder = orderRepository.findAll().get(0);
+        assertThat(testOrder.getStatus()).isEqualTo(OrderStatus.SUCCESS);
     }
 
     @Test
     public void delete(){
         // given
-        Orders orders = new Orders(client, foodOrdersList);
-        orderRepository.save(orders);
+        Order order = new Order(client, foodOrders);
+        orderRepository.save(order);
 
         // when
-        orderRepository.delete(orders);
+        orderRepository.delete(order);
 
         // then
         assertThat(orderRepository.findAll().size()).isEqualTo(0);

@@ -7,12 +7,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-public interface FoodOrdersRepository extends JpaRepository<FoodOrders, Long> {
+public interface FoodOrderRepository extends JpaRepository<FoodOrder, Long> {
     @Modifying
     @Transactional
-    @Query("DELETE FROM FoodOrders f WHERE f.orders.id = ?1")
+    @Query("DELETE FROM FoodOrder f WHERE f.order.id = ?1")
     void deleteAllByOrderId(Long orderId);
 
-    @Query("SELECT f FROM FoodOrders f WHERE f.orders.id = ?1")
-    List<FoodOrders> findAllByOrderId(Long id);
+    @Query("SELECT f FROM FoodOrder f WHERE f.order.id = ?1")
+    List<FoodOrder> findAllByOrderId(Long id);
 }
