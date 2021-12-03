@@ -1,6 +1,7 @@
 package com.coding_study.restaurant_management_app.domain.order;
 
 import com.coding_study.restaurant_management_app.domain.client.Client;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

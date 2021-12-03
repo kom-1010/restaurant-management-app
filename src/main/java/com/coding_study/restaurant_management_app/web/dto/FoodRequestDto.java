@@ -10,24 +10,17 @@ import lombok.Getter;
 public class FoodRequestDto {
     private String name;
     private String type;
+    private String categoryName;
     private int price;
     private int size;
-    private Category category;
 
     @Builder
-    public FoodRequestDto(String name, String type, int price, int size, Category category){
+    public FoodRequestDto(String name, String type, int price, int size, String categoryName){
         this.name = name;
         this.type = type;
         this.price = price;
         this.size = size;
-        this.category = category;
+        this.categoryName = categoryName;
     }
 
-    public Meal toMeal(){
-        return Meal.builder().name(name).price(price).category(category).gram(size).build();
-    }
-
-    public Drink toDrink(){
-        return Drink.builder().name(name).price(price).category(category).liter(size).build();
-    }
 }

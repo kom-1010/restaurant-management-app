@@ -11,8 +11,8 @@
 <body>
     <div id="container">
         <div class="login">
-            <input type="text" placeholder="이름을 입력하세요.">
-            <input type="password" placeholder="비밀번호를 입력하세요.">
+            <input id="client-name" type="text" placeholder="이름을 입력하세요.">
+            <input id="client-password" type="password" placeholder="비밀번호를 입력하세요.">
         </div>
 
         <table>
@@ -20,32 +20,32 @@
             <th>No</th>
             <th>Food</th>
             <th>Category</th>
-            <th>Type</th>
+            <th>Size</th>
             <th>Price</th>
 
-            <tr>
-                <td><input type="checkbox"></td>
-                <td>1</td>
-                <td>김치볶음밥</td>
-                <td>한식</td>
-                <td>식사</td>
-                <td>6,000</td>
+            {{#foods}}
+            <tr class="food-info">
+                <td><input type="checkbox" class="food-checkbox"></td>
+                <td class="food-id">{{id}}</td>
+                <td class="food-name">{{name}}</td>
+                <td>
+                    {{#categories}}
+                        {{name}}
+                    {{/categories}}
+                </td>
+                <td>{{size}}</td>
+                <td>{{price}}</td>
             </tr>
-
-            <tr>
-                <td><input type="checkbox"></td>
-                <td>1</td>
-                <td>콜라</td>
-                <td>기타</td>
-                <td>음료</td>
-                <td>2,000</td>
-            </tr>
+            {{/foods}}
         </table>
 
         <div>
-            <a href="#">주문</a>
+            <a href="#" class="add-order-btn">주문</a>
             <a href="/">취소</a>
         </div>
     </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/order.js"></script>
 </body>
 </html>

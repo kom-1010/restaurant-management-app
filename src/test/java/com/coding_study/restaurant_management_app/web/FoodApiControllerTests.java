@@ -53,7 +53,7 @@ public class FoodApiControllerTests {
     @Transactional
     public void create() throws Exception {
         // given
-        FoodRequestDto requestDto = FoodRequestDto.builder().name(mealName).type("M").price(mealPrice).category(category).size(gram).build();
+        FoodRequestDto requestDto = FoodRequestDto.builder().name(mealName).type("M").price(mealPrice).categoryName(category.getName()).size(gram).build();
         String url = "/api/v1/foods";
 
         // when
@@ -139,7 +139,7 @@ public class FoodApiControllerTests {
         FoodRequestDto requestDto = FoodRequestDto.builder()
                 .name(modifiedName)
                 .price(modifiedPrice)
-                .category(category)
+                .categoryName(category.getName())
                 .size(modifiedGram)
                 .type("M")
                 .build();

@@ -36,5 +36,9 @@ public abstract class Food {
         this.price = price;
     }
 
+    public void addCategory(Category category){
+        this.categories.add(category);
+    }
+
     abstract public void update(String name, int price, int size);
 }

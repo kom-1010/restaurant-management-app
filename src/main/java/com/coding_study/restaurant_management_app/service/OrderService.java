@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public void create(OrderRequestDto requestDto) {
+    public void create(OrderRequestDto requestDto) throws Throwable {
         // 사용자 검증
         Client client = validateClient(requestDto.getClientName(), requestDto.getPassword());
 
@@ -89,7 +90,7 @@ public class OrderService {
                     .id(order.getId())
                     .clientName(order.getClient().getName())
                     .foodCountList(foodCounts)
-                    .orderedAt(order.getOrderedAt())
+                    .orderedAt(order.getOrderedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                     .status(order.getStatus())
                     .totalPrice(totalPrice)
                     .build();
@@ -107,11 +108,12 @@ public class OrderService {
         order.setFoodOrders(foodOrders);
     }
 
-    private List<FoodOrder> makeFoodOrders(List<FoodCount> foodCounts) {
+    private List<FoodOrder> makeFoodOrders(List<FoodCount> foodCounts) throws Throwable {
         List<FoodOrder> foodOrders = new ArrayList<>();
         for(FoodCount foodCount: foodCounts){
             foodOrders.add(FoodOrder.builder()
-                    .food((Food) foodRepository.findById(foodCount.getFoodId()).get())
+                    .food((Food) foodRepository.findById(foodCount.getFoodId()).orElseThrow(() ->
+                            new IllegalArgumentException("unexpected food")))
                     .count(foodCount.getCount()).build());
         }
         return foodOrders;

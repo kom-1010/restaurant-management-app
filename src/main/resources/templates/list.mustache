@@ -15,20 +15,33 @@
             <th>Order</th>
             <th>Consumer</th>
             <th>Price</th>
+            <th>orderedAt</th>
+            <th>Status</th>
             <th></th>
 
+            {{#orders}}
             <tr>
-                <td>1</td>
-                <td>김치볶음밥(2), 콜라(2)</td>
-                <td>Jinsu</td>
-                <td>16,000</td>
-                <td><button>완료</button></td>
+                <td>{{id}}</td>
+                <td>
+                    {{#foodCountList}}
+                        {{foodName}}({{count}}),
+                    {{/foodCountList}}
+                </td>
+                <td>{{clientName}}</td>
+                <td>{{totalPrice}}</td>
+                <td>{{orderedAt}}</td>
+                <td>{{status}}</td>
+                <td><button onclick="successOrder({{id}})">완료</button></td>
             </tr>
+            {{/orders}}
         </table>
 
         <div>
             <a href="/">돌아가기</a>
         </div>
     </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/list.js"></script>
 </body>
 </html>

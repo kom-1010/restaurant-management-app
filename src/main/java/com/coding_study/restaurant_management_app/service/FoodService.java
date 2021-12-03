@@ -20,17 +20,26 @@ public class FoodService {
 
     @Transactional
     public void create(FoodRequestDto requestDto) {
-        Category category = categoryRepository.findById(requestDto.getCategory().getId()).orElseThrow(() ->
-                new IllegalArgumentException("unexpected category"));
+        Category category = categoryRepository.findByNameLike(requestDto.getCategoryName()).orElseThrow(() ->
+                new IllegalArgumentException("unexpected category name"));
 
         Food food;
         if(requestDto.getType().equals("M"))
-            food = (Food) foodRepository.save(requestDto.toMeal());
+            food = (Food) foodRepository.save(Meal.builder()
+                    .name(requestDto.getName())
+                    .price(requestDto.getPrice())
+                    .category(category)
+                    .gram(requestDto.getSize())
+                    .build());
         else if(requestDto.getType().equals("D"))
-            food = (Food) foodRepository.save(requestDto.toDrink());
+            food = (Food) foodRepository.save(Drink.builder()
+                    .name(requestDto.getName())
+                    .price(requestDto.getPrice())
+                    .category(category)
+                    .liter(requestDto.getSize())
+                    .build());
          else
             throw new IllegalArgumentException("unexpected food type");
-
         category.addFood(food);
         categoryRepository.save(category);
     }

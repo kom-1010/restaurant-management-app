@@ -15,7 +15,7 @@ public class OrderApiController {
     private final OrderService orderService;
 
     @PostMapping("/orders")
-    public void create(@RequestBody OrderRequestDto requestDto){
+    public void create(@RequestBody OrderRequestDto requestDto) throws Throwable {
         orderService.create(requestDto);
     }
 

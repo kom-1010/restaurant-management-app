@@ -12,12 +12,12 @@ public class OrderResponseDto {
     private Long id;
     private String clientName;
     private List<FoodCount> foodCountList;
-    private LocalDateTime orderedAt;
+    private String orderedAt;
     private OrderStatus status;
     private int totalPrice;
 
     @Builder
-    public OrderResponseDto(Long id, String clientName, List<FoodCount> foodCountList, LocalDateTime orderedAt, OrderStatus status, int totalPrice){
+    public OrderResponseDto(Long id, String clientName, List<FoodCount> foodCountList, String orderedAt, OrderStatus status, int totalPrice){
         this.id = id;
         this.clientName = clientName;
         this.foodCountList = foodCountList;
