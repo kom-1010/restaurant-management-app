@@ -1,0 +1,23 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 50px;
+}
+
+table th {
+  border: 1px solid #000;
+  padding: 5px 0;
+  background-color: crimson;
+  color: #fff;
+}
+
+table tr td {
+  border: 1px solid #000;
+}
